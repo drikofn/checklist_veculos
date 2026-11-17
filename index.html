@@ -141,6 +141,13 @@
 
     let condutores = JSON.parse(localStorage.getItem('condutores')) || ["Francivaldo Costa", "Joelcinei Guimarães", "Reginaldo Pereira", "Adriano Ferreira", "Ezequiel Almeida"];
 
+    // Atualiza os campos Data e Hora com o momento atual
+    function atualizarDataHoraAtual() {
+        const agora = new Date();
+        document.getElementById('data_dia').value = agora.toLocaleDateString('pt-BR');
+        document.getElementById('hora_dia').value = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
     function limparKM(valor) {
         if (!valor) return 0;
         let str = valor.toString().replace(/\./g, '').replace(',', '.');
@@ -354,44 +361,11 @@ if (!isData) {
     statusOleoTexto = document.getElementById('calc_oleo').innerText;
 }
 
-      //  let t = `*Checklist ${d('selectTag')} - ${status === 'INI' ? 'Início' : 'Fim'} de Trajeto*\n`;
-       // t += `=====================\n\n`;
-       // t += `*Data:* ${d('data_dia')}\n${sep}`;
-       // t += `*Hora:* ${d('hora_dia')}\n${sep}`;
-     //   t += `*Placa:* ${d('placa')}\n${sep}`;
-        //t += `*Condutor 1:* ${d('condutor1')}\n${sep}`;
-       // t += `*Condutor 2:* ${d('condutor2')}\n${sep}`;
-      //  t += `*Condutor 3:* ${d('condutor3')}\n${sep}`;
-      //  t += `*KM Inicio:* _${kmI} km_\n${sep}`;
-
-     //   if(status === 'FIM') {
-        //    t += `*KM Final:* _${kmF} km_\n${sep}`;
-          //  const perc = (limparKM(kmFValue) - limparKM(d('km_inicio'))).toFixed(0);
-        //    t += `*Km Percorrido:* _${formatarKMLimpo(perc)} km_\n${sep}`;
-       // }
-
-        //t += `*Tipo Oleo:* ${d('tipo_oleo')}\n${sep}`;
-       // t += `*${isData ? 'Trocado em' : 'Trocado com (KM)'}:* _${trocadoVisual}${isData ? '' : ' km'}_\n${sep}`;
-       // t += `*${isData ? 'Prox. Troca' : 'Prox. Troca (KM)'}:* _${proxOleoVisual}${isData ? '' : ' km'}_\n${sep}`;
-       // t += `*Status Oleo:* ${statusOleoTexto}\n${sep}`;
-       // t += `*Cor do Selo:* ${d('cor_selo')}\n${sep}`;
-       // t += `*Validade Selo:* ${d('val_selo').split('-').reverse().join('/')}\n${sep}`;
-      //  t += `*Status Selo:* ${document.getElementById('calc_selo').innerText}\n${sep}`;
-       // t += `*Obs:* ${d('obs') || "Sem observacoes"}`;
-
-
-//let t = `📋 *Checklist ${d('selectTag')} - ${status === 'INI' ? '🚀 Início' : '🏁 Fim'} de Trajeto*\n\n`;
-//let t = `📋 *CHECKLIST DE VEÍCULO*\n` +
-      //  `${status === 'INI' ? '🚀 Início de Trajeto' : '🏁 Fim de Trajeto'} - ${d('selectTag')}\n\n`;
 let t = `📋 *CHECKLIST DE VEÍCULO*\n\n` +
         `${status === 'INI' ? '🚀 *Início de Trajeto*' : '🏁 *Fim de Trajeto*'} - ${d('selectTag')}\n`;
 
 t += `${sep}\n`;
-//t += `📅 *DADOS GERAIS*\n`;
-//t += `*Data:* ${d('data_dia')}\n`;
-//t += `*Hora:* ${d('hora_dia')}\n`;
 t += `📅 ${d('data_dia')} | 🕒 *Hora:* ${d('hora_dia')}\n`;
-
 
 t += `${sep}\n`;
 
@@ -402,10 +376,6 @@ t += `${sep}\n`;
 
 t += `👨‍✈️ *CONDUTOR*\n`;
 t += `*Nome:* ${d('condutor1')}\n`;
-//t += `👨‍✈️ *CONDUTORES*\n`;
-//t += `*Condutor 1:* ${d('condutor1')}\n`;
-//t += `*Condutor 2:* ${d('condutor2')}\n`;
-//t += `*Condutor 3:* ${d('condutor3')}\n`;
 
 t += `${sep}\n`;
 
@@ -432,7 +402,6 @@ t += `*Status:* ${statusOleoTexto}\n`;
 t += `${sep}\n`;
 
 t += `🔖 *SELO*\n`;
-//t += `*Cor:* ${d('cor_selo')}\n`;
 const cores = {
   VERDE: '🟢',
   AMARELO: '🟡',
@@ -443,25 +412,14 @@ const cores = {
 const cor = d('cor_selo').toUpperCase();
 
 t += `*Cor:* ${cores[cor] || '⚪'}\n`;
-
-
-        
 t += `*Validade:* ${d('val_selo').split('-').reverse().join('/')}\n`;
-//t += `*Status:* ${document.getElementById('calc_selo').innerText}\n`;
 t += `*Status:* ${document.getElementById('calc_selo').innerText}\n`;
-
-
-        
 
 t += `${sep}\n`;
 
 t += `📝 *OBSERVAÇÕES*\n`;
 t += `${d('obs') || 'Sem observações'}`;
 
-
-        
-
-        
         return t;
     }
 
@@ -469,9 +427,7 @@ t += `${d('obs') || 'Sem observações'}`;
         const viagem = JSON.parse(localStorage.getItem('viagemAtiva'));
         renderCondutoresChecklist();
         if (!viagem) {
-            const agora = new Date();
-            document.getElementById('data_dia').value = agora.toLocaleDateString('pt-BR');
-            document.getElementById('hora_dia').value = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            atualizarDataHoraAtual();
             document.getElementById('condutor1').value = localStorage.getItem('nomeSalvo') || "";
             document.getElementById('statusMensagem').innerHTML = `<div class="status-badge status-novo">NOVO CHECKLIST</div>`;
             document.getElementById('botoesAcao').innerHTML = `<button type="button" class="btn-whatsapp btn-inicio" onclick="enviarInicio()">INICIAR E ENVIAR FOTO</button>`;
@@ -486,6 +442,10 @@ t += `${d('obs') || 'Sem observações'}`;
 
     function enviarInicio() {
         if (!document.getElementById('chkForm').checkValidity()) return document.getElementById('chkForm').reportValidity();
+
+        // Pega a data e a hora atuais no momento de iniciar
+        atualizarDataHoraAtual();
+
         const dados = {};
         document.querySelectorAll('#chkForm input, #chkForm select, #chkForm textarea').forEach(i => { if(i.id) dados[i.id] = i.value; });
         localStorage.setItem('viagemAtiva', JSON.stringify(dados));
@@ -500,6 +460,10 @@ t += `${d('obs') || 'Sem observações'}`;
         const kmF = limparKM(kmFValue);
         if(!kmFValue) return alert("Preencha o KM Final.");
         if(kmF < kmI) return alert("Erro: O KM Final não pode ser menor que o Inicial!");
+
+        // Pega a data e a hora atuais no momento de finalizar
+        atualizarDataHoraAtual();
+
         window.open("https://wa.me/?text=" + encodeURIComponent(montarTextoWhatsapp('FIM', kmFValue)), '_blank');
         
         localStorage.removeItem('viagemAtiva');
