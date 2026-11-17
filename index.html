@@ -364,8 +364,8 @@ if (!isData) {
 let t = `📋 *CHECKLIST DE VEÍCULO*\n\n` +
         `${status === 'INI' ? '🚀 *Início de Trajeto*' : '🏁 *Fim de Trajeto*'} - ${d('selectTag')}\n`;
 
-t += `${sep}\n`;
-t += `📅 ${d('data_dia')} | 🕒 *Hora:* ${d('hora_dia')}\n`;
+//t += `${sep}\n`;
+t += `${d('data_dia')} | ${d('hora_dia')}\n`;
 
 t += `${sep}\n`;
 
