@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telejur - Checklist de Veículo</title>
+    <title>Telejur - Checklist de Veículos</title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --success: #25D366; --admin: #e67e22; --finish: #9b59b6; --danger: #e74c3c; }
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 15px; display: flex; justify-content: center; }
@@ -52,12 +52,11 @@
                 <label>Veículo (TAG)</label>
                 <select id="selectTag" required onchange="atualizarDadosVeiculo()">
                     <option value="">-- Selecione --</option>
-                    <option value="TJUR 04">TJUR 04 (SKY MUNCK)</option>
-                    <option value="TJUR 07">TJUR 07 (SKY MUNCK)</option>
-                    <option value="TJUR 08">TJUR 08 (CAMINHONETE)</option>
-                    <option value="TJUR 09">TJUR 09 (SKY MUNCK)</option>
-                    <option value="TJUR 13">TJUR 13 (CAMINHONETE)</option>
-                    <option value="TJUR 14">TJUR 14 (CAMINHONETE)</option>
+                    <option value="TJUR 07">TJUR 07 - SKY MUNCK</option>
+                    <option value="TJUR 08">TJUR 08 - CAMINHONETE</option>
+                    <option value="TJUR 09">TJUR 09 - SKY MUNCK</option>
+                    <option value="TJUR 13">TJUR 13 - CAMINHONETE</option>
+                    <option value="TJUR 14">TJUR 14 - CAMINHONETE</option>
                 </select>
             </div>
 
@@ -92,11 +91,10 @@
                     </select>
                 </div>
                 <div class="form-group full-width">
-                    <label>Condutor 1</label>
+                    <label>Condutor</label>
                     <select id="condutor1" required onchange="salvarSomenteNome()"></select>
                 </div>
-                <div class="form-group full-width"><label>Condutor 2</label><input type="text" id="condutor2" value="Não informado"></div>
-                <div class="form-group full-width"><label>Condutor 3</label><input type="text" id="condutor3" value="Não informado"></div>
+                
                 <div class="form-group"><label>KM Início</label><input type="text" id="km_inicio" required oninput="calcularTudo()"></div>
                 <div class="form-group"><label>KM Final</label><input type="text" id="km_final" disabled oninput="calcularTudo()"></div>
                 <div class="form-group full-width">
@@ -128,12 +126,17 @@
 <script>
     const SENHA_MESTRA = "1234";
     const frota = {
-        "TJUR 04": { placa: "QFA1I50", oleo: "15W40", cor: "Verde", tipoTroca: "data" },
-        "TJUR 07": { placa: "RWR3C75", oleo: "15W40", cor: "Verde", tipoTroca: "data" },
-        "TJUR 08": { placa: "QVE5H48", oleo: "5W30", cor: "Verde", tipoTroca: "km" },
-        "TJUR 09": { placa: "RXC6J04", oleo: "15W40", cor: "Verde", tipoTroca: "data" },
-        "TJUR 13": { placa: "QVD4I38", oleo: "15W40", cor: "Azul", tipoTroca: "km" },
-        "TJUR 14": { placa: "QVJ5J56", oleo: "15W40", cor: "Verde", tipoTroca: "km" }
+        
+        "TJUR 07": { placa: "RWR3C75", oleo: "15W40", cor: "Verde", trocado: "30000", prox:"35000", selo: "2026-11-30", tipoTroca: "km" },
+        "TJUR 08": { placa: "QVE5H48", oleo: "5W30", cor: "Azul", trocado: "172018", prox:"182018", selo: "2026-12-31", tipoTroca: "km" },
+        "TJUR 09": { placa: "RXC6J04", oleo: "15W40", cor: "Verde", trocado: "35884", prox:"45884", selo: "2026-11-30", tipoTroca: "km" },
+        "TJUR 13": { placa: "QVD4I38", oleo: "15W40", cor: "Verde", trocado: "174696", prox:"184696", selo: "2026-11-30", tipoTroca: "km" },
+        "TJUR 14": { placa: "QVJ5J56", oleo: "15W40", cor: "Azul", trocado: "123025", prox:"133025", selo: "2026-12-31", tipoTroca: "km" }
+        
+       // "TJUR 04": { placa: "QFA1I50", oleo: "15W40", cor: "Verde", trocado: "89710", prox:"", selo: "2026-09-30", tipoTroca: "km" },
+       // "TJUR 04": { placa: "QFA1I50", oleo: "15W40", cor: "Verde", trocado: "166374", prox:"172000", selo: "30/09/2026", tipoTroca: "data" },
+       // "TJUR 07": { placa: "RWR3C75", oleo: "15W40", cor: "Vermelho", trocado: "166374", prox:"172000", selo: "30/09/2026", tipoTroca: "data" },
+       // "TJUR 09": { placa: "RXC6J04", oleo: "15W40", cor: "Verde", trocado: "12345", prox:"12345", selo: "30/08/2026", tipoTroca: "data" },
     };
 
     let condutores = JSON.parse(localStorage.getItem('condutores')) || ["Francivaldo Costa", "Joelcinei Guimarães", "Reginaldo Pereira", "Adriano Ferreira", "Ezequiel Almeida"];
@@ -153,34 +156,125 @@
     function calcularTudo() {
         const hoje = new Date(); hoje.setHours(0,0,0,0);
         const proxOleoField = document.getElementById('prox_oleo');
+         //const proxOleoField = document.getElementById('trocado');
         const displayOleo = document.getElementById('calc_oleo');
-        
+
         const kmFinalVal = limparKM(document.getElementById('km_final').value);
-        const kmReferencia = kmFinalVal > 0 ? kmFinalVal : limparKM(document.getElementById('km_inicio').value);
+        //const kmReferencia = kmFinalVal > 0 ? kmFinalVal : limparKM(document.getElementById('km_inicio').value);
+                const kmInicio = limparKM(document.getElementById('km_inicio').value);
+        const kmTroca = limparKM(document.getElementById('trocado_com').value);
+        
+        const kmReferencia = kmFinalVal > 0
+            ? kmFinalVal
+            : (kmInicio > 0 ? kmInicio : kmTroca); 
 
+
+        
         if (proxOleoField.value) {
-            if (proxOleoField.type === 'month') {
-                const [ano, mes] = proxOleoField.value.split('-');
-                const dUltimoDia = new Date(ano, mes, 0); 
-                const diff = Math.ceil((dUltimoDia - hoje) / (1000 * 60 * 60 * 24));
-                displayOleo.innerText = diff < 0 ? `Vencido há ${Math.abs(diff)} dias` : `Faltam ${diff} dias`;
-                displayOleo.style.color = diff < 0 ? "red" : "green";
-            } else if (kmReferencia > 0) {
-                const saldo = Math.round(limparKM(proxOleoField.value) - kmReferencia);
-                displayOleo.innerText = saldo < 0 ? `Passou ${formatarKMLimpo(Math.abs(saldo))} KM` : `Restam ${formatarKMLimpo(saldo)} KM`;
-                displayOleo.style.color = saldo < 0 ? "red" : "green";
-            }
+
+    if (proxOleoField.type === 'month') {
+
+        const [ano, mes] = proxOleoField.value.split('-');
+        const dUltimoDia = new Date(ano, mes, 0);
+
+        const diff = Math.ceil(
+            (dUltimoDia - hoje) / (1000 * 60 * 60 * 24)
+        );
+
+        if (diff <= 0) {
+
+            displayOleo.innerText =
+                `🔴 Vencido há ${Math.abs(diff)} dias`;
+
+            displayOleo.style.color = "red";
+
+        }
+        else if (diff <= 120) {
+
+            displayOleo.innerText =
+                `⚠️ Vence em ${diff} dias`;
+
+            displayOleo.style.color = "orange";
+
+        }
+        else {
+
+            displayOleo.innerText =
+                `✅ Faltam ${diff} dias`;
+
+            displayOleo.style.color = "green";
+
         }
 
-        const valSelo = document.getElementById('val_selo').value;
-        if (valSelo) {
-            const dSelo = new Date(valSelo + "T00:00:00");
-            const diffSelo = Math.ceil((dSelo - hoje) / (1000 * 60 * 60 * 24));
-            document.getElementById('calc_selo').innerText = diffSelo < 0 ? `VENCIDO!` : `Vence em ${diffSelo} dias`;
-            document.getElementById('calc_selo').style.color = diffSelo < 0 ? "red" : "green";
+    } else if (kmReferencia > 0) {
+
+        const saldo =
+            Math.round(limparKM(proxOleoField.value) - kmReferencia);
+
+        if (saldo <= 0) {
+
+            displayOleo.innerText =
+                `🔴 Troca vencida há ${formatarKMLimpo(Math.abs(saldo))} KM`;
+
+            displayOleo.style.color = "red";
+
         }
+        else if (saldo <= 120) {
+
+            displayOleo.innerText =
+                `⚠️ Trocar em ${formatarKMLimpo(saldo)} KM`;
+
+            displayOleo.style.color = "orange";
+
+        }
+        else {
+
+            displayOleo.innerText =
+                `✅ Restam ${formatarKMLimpo(saldo)} KM`;
+
+            displayOleo.style.color = "green";
+         }
+    }
+}
+    
+        //const valSelo = document.getElementById('calc_selo').value;
+        //const valSelo = document.getElementById('val_selo').value;
+        //if (valSelo) {
+            //const dSelo = new Date(valSelo + "T00:00:00");
+            //const diffSelo = Math.ceil((dSelo - hoje) / (1000 * 60 * 60 * 24));
+           // document.getElementById('calc_selo').innerText = diffSelo < 0 ? `VENCIDO!` : `Vence em ${diffSelo} dias`;
+            //document.getElementById('calc_selo').style.color = diffSelo < 0 ? "red" : "green";
+            //document.getElementById('calc_selo').innerText = diffSelo < 0 ? `VENCIDO!` : `Vence em ${diffSelo} dias`;
+           // document.getElementById('calc_selo').style.color = diffSelo < 0 ? "red" : "green";
+
+                    const valSelo = document.getElementById('val_selo').value;
+            
+            if (valSelo) {
+            
+                const dSelo = new Date(valSelo + "T00:00:00");
+               const diffSelo = Math.ceil(
+                    (dSelo - hoje) / (1000 * 60 * 60 * 24)
+                );
+                            
+                const calcSelo = document.getElementById('calc_selo');
+            
+                if (diffSelo <= 0) {
+                    calcSelo.innerText = '🔴 VENCIDO!';
+                    calcSelo.style.color = 'red';
+                }
+                else if (diffSelo <= 10) {
+                    calcSelo.innerText = `⚠️ Vence em ${diffSelo} dias`;
+                    calcSelo.style.color = 'orange';
+                }
+                else {
+                    calcSelo.innerText = `✅ Vence em ${diffSelo} dias`;
+                    calcSelo.style.color = 'green';
+                }
+            }
     }
 
+
+        
     function atualizarDadosVeiculo() {
         if (localStorage.getItem('viagemAtiva')) return;
         const tag = document.getElementById('selectTag').value;
@@ -189,73 +283,184 @@
             document.getElementById('placa').value = v.placa;
             document.getElementById('tipo_oleo').value = v.oleo;
             document.getElementById('cor_selo').value = v.cor;
-            
+            document.getElementById('trocado_com').value = v.trocado;
+            document.getElementById('prox_oleo').value = v.prox;
+            document.getElementById('val_selo').value = v.selo;
+
             const trocadoInput = document.getElementById('trocado_com');
             const proxInput = document.getElementById('prox_oleo');
             
-            if (v.tipoTroca === "data") {
+           //const trocadoInput = document.getElementById('trocado');
+            //const proxInput = document.getElementById('prox');
+           // const trocadoInput = document.getElementById('trocado_com');
+           // const proxInput = document.getElementById('prox_oleo');
+                       if (v.tipoTroca === "data") {
                 trocadoInput.type = "month";
                 proxInput.type = "month";
                 document.getElementById('labelTrocadoCom').innerText = "Trocado em";
-                document.getElementById('labelProxOleo').innerText = "Prox. Troca";
+                document.getElementById('labelProxOleo').innerText = "Próx. Troca";
             } else {
                 trocadoInput.type = "text";
                 proxInput.type = "text";
                 document.getElementById('labelTrocadoCom').innerText = "Trocado com (KM)";
-                document.getElementById('labelProxOleo').innerText = "Prox. Troca (KM)";
+                document.getElementById('labelProxOleo').innerText = "Próx. Troca (KM)";
             }
             
-            trocadoInput.value = "";
-            proxInput.value = ""; 
             document.getElementById('km_inicio').value = "";
             document.getElementById('calc_oleo').innerText = "";
+            
+            calcularTudo();
         }
     }
 
     function montarTextoWhatsapp(status, kmFValue = null) {
         const d = (id) => document.getElementById(id).value;
-        const sep = "--------------------------------\n";
-        
+        //const sep = "--------------------------------\n";
+        const sep = "───────────────";
+        //const sep = "■■■■■■■■■■■■■■■";
+        //const sep = "═══════════════";
+        //const sep = "•••••••••••••••";
+        //const sep = "···············";
+        //const sep = "===============";
+
         const kmI = formatarKMLimpo(d('km_inicio'));
         const kmF = kmFValue ? formatarKMLimpo(kmFValue) : "";
-        
+
         const isData = document.getElementById('prox_oleo').type === 'month';
         const trocadoVisual = isData ? d('trocado_com').split('-').reverse().join('/') : formatarKMLimpo(d('trocado_com'));
+        //const trocadoVisual = isData ? d('trocado_com').split('-').reverse().join('/') : formatarKMLimpo(d('trocado'));
         const proxOleoVisual = isData ? d('prox_oleo').split('-').reverse().join('/') : formatarKMLimpo(d('prox_oleo'));
-        
-        let statusOleoTexto = "";
-        if (!isData) {
-            const kmReferencia = kmFValue ? limparKM(kmFValue) : limparKM(d('km_inicio'));
-            const saldoOleo = Math.round(limparKM(d('prox_oleo')) - kmReferencia);
-            statusOleoTexto = saldoOleo < 0 ? `Passou ${formatarKMLimpo(Math.abs(saldoOleo))} KM` : `Restam ${formatarKMLimpo(saldoOleo)} KM`;
-        } else {
-            statusOleoTexto = document.getElementById('calc_oleo').innerText;
-        }
 
-        let t = `*Checklist ${d('selectTag')} - ${status === 'INI' ? 'Início' : 'Fim'} de Trajeto*\n`;
-        t += `############################\n\n`;
-        t += `*Data:* ${d('data_dia')}\n${sep}`;
-        t += `*Hora:* ${d('hora_dia')}\n${sep}`;
-        t += `*Placa:* ${d('placa')}\n${sep}`;
-        t += `*Condutor 1:* ${d('condutor1')}\n${sep}`;
-        t += `*Condutor 2:* ${d('condutor2')}\n${sep}`;
-        t += `*Condutor 3:* ${d('condutor3')}\n${sep}`;
-        t += `*KM Inicio:* _${kmI} km_\n${sep}`;
+        let statusOleoTexto = "";
+if (!isData) {
+    const kmInicio = limparKM(d('km_inicio'));
+    const kmTroca = limparKM(d('trocado_com'));
+    const kmReferencia = kmFValue
+        ? limparKM(kmFValue)
+        : (kmInicio > 0 ? kmInicio : kmTroca);
+    const saldoOleo =
+        Math.round(limparKM(d('prox_oleo')) - kmReferencia);
+    if (saldoOleo < 0) {
+        statusOleoTexto =
+            `🔴 Troca vencida há ${formatarKMLimpo(Math.abs(saldoOleo))} KM`;
+    } else if (saldoOleo <= 1000) {
+        statusOleoTexto =
+            `⚠️ Troca em ${formatarKMLimpo(saldoOleo)} KM`;
+    } else {
+        statusOleoTexto =
+            `✅ Restam ${formatarKMLimpo(saldoOleo)} KM`;
+    }
+} else {
+    statusOleoTexto = document.getElementById('calc_oleo').innerText;
+}
+
+      //  let t = `*Checklist ${d('selectTag')} - ${status === 'INI' ? 'Início' : 'Fim'} de Trajeto*\n`;
+       // t += `=====================\n\n`;
+       // t += `*Data:* ${d('data_dia')}\n${sep}`;
+       // t += `*Hora:* ${d('hora_dia')}\n${sep}`;
+     //   t += `*Placa:* ${d('placa')}\n${sep}`;
+        //t += `*Condutor 1:* ${d('condutor1')}\n${sep}`;
+       // t += `*Condutor 2:* ${d('condutor2')}\n${sep}`;
+      //  t += `*Condutor 3:* ${d('condutor3')}\n${sep}`;
+      //  t += `*KM Inicio:* _${kmI} km_\n${sep}`;
+
+     //   if(status === 'FIM') {
+        //    t += `*KM Final:* _${kmF} km_\n${sep}`;
+          //  const perc = (limparKM(kmFValue) - limparKM(d('km_inicio'))).toFixed(0);
+        //    t += `*Km Percorrido:* _${formatarKMLimpo(perc)} km_\n${sep}`;
+       // }
+
+        //t += `*Tipo Oleo:* ${d('tipo_oleo')}\n${sep}`;
+       // t += `*${isData ? 'Trocado em' : 'Trocado com (KM)'}:* _${trocadoVisual}${isData ? '' : ' km'}_\n${sep}`;
+       // t += `*${isData ? 'Prox. Troca' : 'Prox. Troca (KM)'}:* _${proxOleoVisual}${isData ? '' : ' km'}_\n${sep}`;
+       // t += `*Status Oleo:* ${statusOleoTexto}\n${sep}`;
+       // t += `*Cor do Selo:* ${d('cor_selo')}\n${sep}`;
+       // t += `*Validade Selo:* ${d('val_selo').split('-').reverse().join('/')}\n${sep}`;
+      //  t += `*Status Selo:* ${document.getElementById('calc_selo').innerText}\n${sep}`;
+       // t += `*Obs:* ${d('obs') || "Sem observacoes"}`;
+
+
+//let t = `📋 *Checklist ${d('selectTag')} - ${status === 'INI' ? '🚀 Início' : '🏁 Fim'} de Trajeto*\n\n`;
+//let t = `📋 *CHECKLIST DE VEÍCULO*\n` +
+      //  `${status === 'INI' ? '🚀 Início de Trajeto' : '🏁 Fim de Trajeto'} - ${d('selectTag')}\n\n`;
+let t = `📋 *CHECKLIST DE VEÍCULO*\n\n` +
+        `${status === 'INI' ? '🚀 *Início de Trajeto*' : '🏁 *Fim de Trajeto*'} - ${d('selectTag')}\n`;
+
+t += `${sep}\n`;
+//t += `📅 *DADOS GERAIS*\n`;
+//t += `*Data:* ${d('data_dia')}\n`;
+//t += `*Hora:* ${d('hora_dia')}\n`;
+t += `📅 ${d('data_dia')} | 🕒 *Hora:* ${d('hora_dia')}\n`;
+
+
+t += `${sep}\n`;
+
+t += `🚘 *VEÍCULO*\n`;
+t += `*Placa:* ${d('placa')}\n`;
+
+t += `${sep}\n`;
+
+t += `👨‍✈️ *CONDUTOR*\n`;
+t += `*Nome:* ${d('condutor1')}\n`;
+//t += `👨‍✈️ *CONDUTORES*\n`;
+//t += `*Condutor 1:* ${d('condutor1')}\n`;
+//t += `*Condutor 2:* ${d('condutor2')}\n`;
+//t += `*Condutor 3:* ${d('condutor3')}\n`;
+
+t += `${sep}\n`;
+
+t += `🛣️ *QUILOMETRAGEM*\n`;
+t += `*KM Início:* ${kmI} km\n`;
+
+if (status === 'FIM') {
+    const perc =
+        (limparKM(kmFValue) - limparKM(d('km_inicio')))
+        .toFixed(0);
+
+    t += `*KM Final:* ${kmF} km\n`;
+    t += `*KM Percorrido:* ${formatarKMLimpo(perc)} km\n`;
+}
+
+t += `${sep}\n`;
+
+t += `🛢️ *ÓLEO*\n`;
+t += `*Tipo:* ${d('tipo_oleo')}\n`;
+t += `*${isData ? 'Trocado em' : 'Trocado com (KM)'}:* ${trocadoVisual}${isData ? '' : ' km'}\n`;
+t += `*${isData ? 'Próx. Troca' : 'Próx. Troca (KM)'}:* ${proxOleoVisual}${isData ? '' : ' km'}\n`;
+t += `*Status:* ${statusOleoTexto}\n`;
+
+t += `${sep}\n`;
+
+t += `🔖 *SELO*\n`;
+//t += `*Cor:* ${d('cor_selo')}\n`;
+const cores = {
+  VERDE: '🟢',
+  AMARELO: '🟡',
+  AZUL: '🔵',
+  VERMELHO: '🔴'
+};
+
+const cor = d('cor_selo').toUpperCase();
+
+t += `*Cor:* ${cores[cor] || '⚪'}\n`;
+
+
         
-        if(status === 'FIM') {
-            t += `*KM Final:* _${kmF} km_\n${sep}`;
-            const perc = (limparKM(kmFValue) - limparKM(d('km_inicio'))).toFixed(0);
-            t += `*Km Percorrido:* _${formatarKMLimpo(perc)} km_\n${sep}`;
-        }
+t += `*Validade:* ${d('val_selo').split('-').reverse().join('/')}\n`;
+//t += `*Status:* ${document.getElementById('calc_selo').innerText}\n`;
+t += `*Status:* ${document.getElementById('calc_selo').innerText}\n`;
+
+
         
-        t += `*Tipo Oleo:* ${d('tipo_oleo')}\n${sep}`;
-        t += `*${isData ? 'Trocado em' : 'Trocado com (KM)'}:* _${trocadoVisual}${isData ? '' : ' km'}_\n${sep}`;
-        t += `*${isData ? 'Prox. Troca' : 'Prox. Troca (KM)'}:* _${proxOleoVisual}${isData ? '' : ' km'}_\n${sep}`;
-        t += `*Status Oleo:* ${statusOleoTexto}\n${sep}`;
-        t += `*Cor do Selo:* ${d('cor_selo')}\n${sep}`;
-        t += `*Validade Selo:* ${d('val_selo').split('-').reverse().join('/')}\n${sep}`;
-        t += `*Status Selo:* ${document.getElementById('calc_selo').innerText}\n${sep}`;
-        t += `*Obs:* ${d('obs') || "Sem observacoes"}`;
+
+t += `${sep}\n`;
+
+t += `📝 *OBSERVAÇÕES*\n`;
+t += `${d('obs') || 'Sem observações'}`;
+
+
+        
+
         
         return t;
     }
@@ -285,6 +490,7 @@
         document.querySelectorAll('#chkForm input, #chkForm select, #chkForm textarea').forEach(i => { if(i.id) dados[i.id] = i.value; });
         localStorage.setItem('viagemAtiva', JSON.stringify(dados));
         window.open("https://wa.me/?text=" + encodeURIComponent(montarTextoWhatsapp('INI')), '_blank');
+
         renderInterface();
     }
 
@@ -295,6 +501,7 @@
         if(!kmFValue) return alert("Preencha o KM Final.");
         if(kmF < kmI) return alert("Erro: O KM Final não pode ser menor que o Inicial!");
         window.open("https://wa.me/?text=" + encodeURIComponent(montarTextoWhatsapp('FIM', kmFValue)), '_blank');
+        
         localStorage.removeItem('viagemAtiva');
         location.reload();
     }
